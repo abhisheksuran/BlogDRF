@@ -4,9 +4,9 @@
 
 A simple Blog Rest API based on Django-Rest-Framework
 
-## For Developement SetUp
+## For Development SetUp
 
-Run following commands for setting up developement environment.
+Run following commands for setting up development environment.
 
 1. docker-compose build
 2. docker-compose up
