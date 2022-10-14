@@ -13,7 +13,7 @@ Run following commands for setting up developement environment.
 
 ## For running custom command:
 
-docker-compose run --rm app sh -c "<YOUR COMMAND>"
+docker-compose run --rm app sh -c "YOUR COMMAND"
 
 example: docker-compose run --rm app sh -c "python manage.py shell"
 
