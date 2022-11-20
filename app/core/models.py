@@ -9,7 +9,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
 
-
 def get_anonymous_user():
     return get_user_model().objects.get_or_create(email='nouser@example.com', first_name='Anonymous')
 
