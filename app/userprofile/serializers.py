@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import UserProfile
+from core.models import UserProfile, Follower, User
 #from  core.models import Blog, Tag, User
 # from user.serializers import UserSerializer
 # from blog.serializers import TagSerializer, BlogSerializer
@@ -43,3 +43,33 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['user', 'profile_pic', 'about', 'gender', 'posts', 'tags']
+
+
+class FollowUserSerializer(serializers.ModelSerializer):
+    """Serializer to follow a user"""
+    
+    following_to = serializers.CharField(read_only=True)
+    class Meta:
+        model = Follower
+        fields = ['following_to', 'created_on']
+
+    def create(self, validated_data):
+        auth_user = self.context.get('request').user
+        username = self.context.get('view').kwargs.get('username')
+        username = User.objects.get(username=username)
+        try:
+            follow = Follower.objects.get(user=auth_user, following_to=username)
+            if follow:
+               follow = Follower.objects.get(user=auth_user, following_to=username.id).delete()
+        except Follower.DoesNotExist:
+            follow = Follower.objects.create(user=auth_user, following_to=username)
+
+        return follow
+
+
+class GetFollowersForUserSerializer(serializers.ModelSerializer):
+    """Serializer for getting followers for a user"""
+    user = serializers.CharField(read_only=True)
+    class Meta:
+        model = Follower
+        fields = ['user', 'created_on']

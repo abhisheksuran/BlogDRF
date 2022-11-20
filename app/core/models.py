@@ -33,21 +33,21 @@ def blog_image_path(instance, filename):
 class UserManager(BaseUserManager):
     """Custom user manager"""
 
-    def create_user(self, email, first_name, password=None, **kwargs):
+    def create_user(self, email, username, password=None, **kwargs):
         """Create user """
         if not email:
             raise ValueError("[-] Kindly provide an email address for registration [-]")
-        if not first_name:
+        if not username:
             raise ValueError("[-] User should have a first name [-]")
 
-        user = self.model(email=self.normalize_email(email), first_name=first_name, **kwargs)
+        user = self.model(email=self.normalize_email(email), username=username, **kwargs)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, first_name, **kwargs):
+    def create_superuser(self, email, username, **kwargs):
         """Create a superuser"""
-        user = self.create_user(email, first_name, **kwargs)
+        user = self.create_user(email, username, **kwargs)
         user.is_superuser = True
         user.is_staff = True
         user.save(using=self._db)
@@ -58,28 +58,18 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     """Custom User model"""
     email = models.EmailField(max_length=255, unique=True)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255, blank=True)
+    username = models.CharField(max_length=20, unique=True)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name']
-
-    def get_full_name(self):
-        """Get user full name"""
-        return self.first_name + " " + self.last_name
-
-    def get_short_name(self):
-        """Get short name for user"""
-        return self.first_name
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         """Get string representation for the object"""
-        return self.first_name + " " + self.last_name
-
+        return self.username
 
 
 class Tag(models.Model):
@@ -153,6 +143,8 @@ class Blog(models.Model):
 class UserProfile(models.Model):
     """Detailed model for user profile"""
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     profile_pic = models.ImageField(null=True, upload_to=user_image_path)
     about = models.TextField(null=True)
     GENDER_CHOICE = (('M','Male'), ('F','Female'))
@@ -173,3 +165,10 @@ class UserProfile(models.Model):
         #user_tags = self.user.tag_set.values_list('caption')
         user_tags = self.user.tag_set.values()
         return user_tags
+
+
+class Follower(models.Model):
+    """Model for user followers and it's followings"""
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='follower')
+    following_to = models.ForeignKey('User', on_delete=models.CASCADE, related_name='following')
+    created_on = models.DateField(auto_now=True)

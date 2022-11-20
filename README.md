@@ -2,7 +2,8 @@
 
 ## Description:
 
-A simple Blog Rest API based on Django-Rest-Framework
+A simple Blog Rest API based on Django-Rest-Framework. 
+Swagger docs can be access at http://localhost:8000/api/docs/
 
 ## For Development SetUp
 
